@@ -16,6 +16,7 @@ export async function createTransfer(data) {
     const validatedData = TransferSchema.parse(data);
     return await createTransferInRepository(validatedData);
   } catch (err) {
+    console.log(err);
     throw new HttpBadRequest(err.message);
   }
 }

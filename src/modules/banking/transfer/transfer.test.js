@@ -1,21 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createTransfer, getTransfers } from "./transfer.service";
 
-import {
-  createTransferInRepository,
-  getTransfersInRepository,
-} from "./transfer.repository";
-
 vi.mock("./transfer.repository.js", async () => {
   return {
     createTransferInRepository: vi.fn(
-      ({ fromAccountId, toAccountId, amount }) => {
+      ({
+        sourceAccountId: fromAccountId,
+        destAccountId: toAccountId,
+        amount: amount,
+      }) => {
         return {
           id: 1,
-          fromAccountId,
-          toAccountId,
-          amount,
-          createdAt: new Date().toISOString(),
+          sourceAccountId: fromAccountId,
+          destAccountId: toAccountId,
+          amount: amount,
         };
       }
     ),
@@ -24,10 +22,9 @@ vi.mock("./transfer.repository.js", async () => {
         return [
           {
             id: 1,
-            fromAccountId: 1,
-            toAccountId: 2,
+            sourceAccountId: 1,
+            destAccountId: 2,
             amount: 50,
-            createdAt: new Date().toISOString(),
           },
         ];
       }
@@ -41,14 +38,15 @@ describe("Transfer Service", () => {
 
   it("createTransfer réussi", async () => {
     const transfer = await createTransfer({
-      fromAccountId: 1,
-      toAccountId: 2,
+      sourceAccountId: 1,
+      destAccountId: 2,
       amount: 100,
     });
 
     expect(transfer).toMatchObject({
-      fromAccountId: 1,
-      toAccountId: 2,
+      id: 1,
+      sourceAccountId: 1,
+      destAccountId: 2,
       amount: 100,
     });
   });
@@ -56,7 +54,7 @@ describe("Transfer Service", () => {
   it("createTransfer échoue avec de mauvais paramètres", async () => {
     await expect(
       createTransfer({
-        fromAccountId: 1,
+        sourceAccountId: 1,
         amount: 100,
       })
     ).rejects.toThrow();
@@ -65,8 +63,8 @@ describe("Transfer Service", () => {
   it("createTransfer échoue avec un mauvais montant", async () => {
     await expect(
       createTransfer({
-        fromAccountId: 1,
-        toAccountId: 2,
+        sourceAccountId: 1,
+        destAccountId: 2,
         amount: "cent",
       })
     ).rejects.toThrow();
@@ -75,8 +73,8 @@ describe("Transfer Service", () => {
   it("createTransfer échoue avec une valeur négative", async () => {
     await expect(
       createTransfer({
-        fromAccountId: 1,
-        toAccountId: 2,
+        sourceAccountId: 1,
+        destAccountId: 2,
         amount: -50,
       })
     ).rejects.toThrow();
@@ -89,8 +87,8 @@ describe("Transfer Service", () => {
     expect(transfers).toHaveLength(1);
     expect(transfers[0]).toMatchObject({
       id: 1,
-      fromAccountId: 1,
-      toAccountId: 2,
+      sourceAccountId: 1,
+      destAccountId: 2,
       amount: 50,
     });
   });
